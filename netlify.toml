@@ -1,0 +1,11 @@
+[build]
+  command = "npm ci --prefix backend/frontend && npm run build --prefix backend/frontend"
+  publish = "backend/frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
