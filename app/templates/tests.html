@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Testes{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-6">Execução de Testes</h2>
+<p class="mb-4 text-sm text-slate-600">Use esta página para validar rapidamente a saúde da API em tempo real. O teste executa uma chamada ao endpoint <code>/health</code> e exibe o resultado.</p>
+<div class="rounded-xl border border-slate-200 bg-white p-6 shadow">
+    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+            <p class="text-base font-medium text-slate-800">Teste de Health Check</p>
+            <p class="text-sm text-slate-500">Verifica se o serviço FastAPI responde com status 200 e corpo esperado.</p>
+        </div>
+        <button id="run-test" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+            Executar teste
+        </button>
+    </div>
+    <div id="test-result" class="mt-6 hidden rounded-lg border px-4 py-3 text-sm"></div>
+</div>
+
+<script>
+const runButton = document.getElementById("run-test");
+const resultBox = document.getElementById("test-result");
+
+const showResult = (message, isSuccess) => {
+    resultBox.textContent = message;
+    resultBox.className = `mt-6 rounded-lg border px-4 py-3 text-sm ${isSuccess ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-700"}`;
+    resultBox.classList.remove("hidden");
+};
+
+runButton?.addEventListener("click", async () => {
+    runButton.disabled = true;
+    runButton.textContent = "Executando...";
+    showResult("Aguardando resposta do servidor...", true);
+
+    try {
+        const response = await fetch("/health", { cache: "no-store" });
+        const body = await response.json().catch(() => ({}));
+
+        if (response.ok && body.status === "ok") {
+            showResult(`Sucesso! Status ${response.status} - ${JSON.stringify(body)}`, true);
+        } else {
+            showResult(`Falha. Status ${response.status} - corpo ${JSON.stringify(body)}`, false);
+        }
+    } catch (error) {
+        showResult(`Erro ao executar o teste: ${error}`, false);
+    } finally {
+        runButton.disabled = false;
+        runButton.textContent = "Executar teste";
+    }
+});
+</script>
+{% endblock %}
