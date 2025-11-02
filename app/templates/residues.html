@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}Resíduos{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-semibold mb-6">Resíduos</h2>
+
+{% if message %}
+<div class="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700">
+    {{ message }}
+</div>
+{% elif error %}
+<div class="mb-6 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-rose-700">
+    {{ error }}
+</div>
+{% endif %}
+
+{% set editing_waste_code = edit_waste_code %}
+{% set editing_transporter = edit_transporter %}
+{% set editing_recipient = edit_recipient %}
+
+<section class="space-y-10">
+    <div>
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-slate-800">Códigos de Resíduos</h3>
+            <span class="text-sm text-slate-500">Total: {{ waste_codes|length }}</span>
+        </div>
+        <form action="/ui/residues/waste-codes" method="post" class="mb-4 grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow">
+            {% if editing_waste_code %}
+            <input type="hidden" name="code_id" value="{{ editing_waste_code.id }}">
+            <div class="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                <span>Editando código <strong>{{ editing_waste_code.code }}</strong></span>
+                <a href="/ui/residues" class="font-medium text-amber-800 hover:underline">Cancelar</a>
+            </div>
+            {% endif %}
+            <div class="grid gap-4 md:grid-cols-3">
+                <label class="text-sm text-slate-600" for="waste-code-code">
+                    Código
+                    <input id="waste-code-code" name="code" type="text" required value="{{ editing_waste_code.code if editing_waste_code else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="waste-code-classification">
+                    Classificação
+                    <input id="waste-code-classification" name="classification" type="text" value="{{ editing_waste_code.classification if editing_waste_code else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Classe I, Classe II...">
+                </label>
+                <label class="text-sm text-slate-600 md:col-span-3" for="waste-code-description">
+                    Descrição
+                    <input id="waste-code-description" name="description" type="text" value="{{ editing_waste_code.description if editing_waste_code else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Observações adicionais">
+                </label>
+            </div>
+            <div class="flex justify-end gap-3">
+                {% if editing_waste_code %}
+                <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Atualizar código
+                </button>
+                {% else %}
+                <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Adicionar código
+                </button>
+                {% endif %}
+            </div>
+        </form>
+        <div class="overflow-x-auto bg-white border border-slate-200 shadow rounded-xl">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-slate-600 uppercase">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Código</th>
+                        <th class="px-4 py-3 text-left">Classificação</th>
+                        <th class="px-4 py-3 text-left">Descrição</th>
+                        <th class="px-4 py-3 text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for waste_code in waste_codes %}
+                    <tr class="hover:bg-emerald-50/50">
+                        <td class="px-4 py-3 font-medium">{{ waste_code.code }}</td>
+                        <td class="px-4 py-3">{{ waste_code.classification or '-' }}</td>
+                        <td class="px-4 py-3">{{ waste_code.description or '-' }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2">
+                                <a href="/ui/residues?edit_waste_code={{ waste_code.id }}" class="inline-flex items-center rounded-lg border border-emerald-600 px-3 py-1 text-xs font-medium uppercase tracking-wide text-emerald-700 hover:bg-emerald-50">
+                                    Editar
+                                </a>
+                                <form action="/ui/residues/waste-codes/{{ waste_code.id }}/delete" method="post" data-confirm-message="Remover este código de resíduo?">
+                                    <button type="submit" class="inline-flex items-center rounded-lg border border-rose-500 px-3 py-1 text-xs font-medium uppercase tracking-wide text-rose-600 hover:bg-rose-50" data-confirm-trigger>
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-4 py-6 text-center text-slate-500">Nenhum código cadastrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div>
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-slate-800">Transportadoras</h3>
+            <span class="text-sm text-slate-500">Total: {{ transporters|length }}</span>
+        </div>
+        <form action="/ui/residues/transporters" method="post" class="mb-4 grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow">
+            {% if editing_transporter %}
+            <input type="hidden" name="transporter_id" value="{{ editing_transporter.id }}">
+            <div class="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                <span>Editando transportadora <strong>{{ editing_transporter.name }}</strong></span>
+                <a href="/ui/residues" class="font-medium text-amber-800 hover:underline">Cancelar</a>
+            </div>
+            {% endif %}
+            <div class="grid gap-4 md:grid-cols-2">
+                <label class="text-sm text-slate-600" for="transporter-name">
+                    Nome
+                    <input id="transporter-name" name="name" type="text" required value="{{ editing_transporter.name if editing_transporter else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="transporter-license-number">
+                    Número da licença
+                    <input id="transporter-license-number" name="license_number" type="text" required value="{{ editing_transporter.license_number if editing_transporter else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="transporter-license-issue">
+                    Data de emissão
+                    <input id="transporter-license-issue" name="license_issue_date" type="date" value="{{ editing_transporter.license_issue_date if editing_transporter else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="transporter-license-expiry">
+                    Data de validade
+                    <input id="transporter-license-expiry" name="license_expiry_date" type="date" value="{{ editing_transporter.license_expiry_date if editing_transporter else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="transporter-email">
+                    E-mail de contato
+                    <input id="transporter-email" name="contact_email" type="email" value="{{ editing_transporter.contact_email if editing_transporter else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="contato@empresa.com">
+                </label>
+                <label class="text-sm text-slate-600" for="transporter-phone">
+                    Telefone
+                    <input id="transporter-phone" name="contact_phone" type="text" value="{{ editing_transporter.contact_phone if editing_transporter else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="(11) 0000-0000">
+                </label>
+            </div>
+            <div class="flex justify-end gap-3">
+                {% if editing_transporter %}
+                <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Atualizar transportadora
+                </button>
+                {% else %}
+                <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Adicionar transportadora
+                </button>
+                {% endif %}
+            </div>
+        </form>
+        <div class="overflow-x-auto bg-white border border-slate-200 shadow rounded-xl">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-slate-600 uppercase">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Nome</th>
+                        <th class="px-4 py-3 text-left">Licença</th>
+                        <th class="px-4 py-3 text-left">Validade</th>
+                        <th class="px-4 py-3 text-left">Contato</th>
+                        <th class="px-4 py-3 text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for transporter in transporters %}
+                    <tr class="hover:bg-emerald-50/50">
+                        <td class="px-4 py-3 font-medium">{{ transporter.name }}</td>
+                        <td class="px-4 py-3">{{ transporter.license_number }}</td>
+                        <td class="px-4 py-3">{{ transporter.license_expiry_date or '-' }}</td>
+                        <td class="px-4 py-3">{{ transporter.contact_email or transporter.contact_phone or '-' }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2">
+                                <a href="/ui/residues?edit_transporter={{ transporter.id }}" class="inline-flex items-center rounded-lg border border-emerald-600 px-3 py-1 text-xs font-medium uppercase tracking-wide text-emerald-700 hover:bg-emerald-50">
+                                    Editar
+                                </a>
+                                <form action="/ui/residues/transporters/{{ transporter.id }}/delete" method="post" data-confirm-message="Remover esta transportadora?">
+                                    <button type="submit" class="inline-flex items-center rounded-lg border border-rose-500 px-3 py-1 text-xs font-medium uppercase tracking-wide text-rose-600 hover:bg-rose-50" data-confirm-trigger>
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-slate-500">Nenhuma transportadora cadastrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div>
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-semibold text-slate-800">Destinatários</h3>
+            <span class="text-sm text-slate-500">Total: {{ recipients|length }}</span>
+        </div>
+        <form action="/ui/residues/recipients" method="post" class="mb-4 grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow">
+            {% if editing_recipient %}
+            <input type="hidden" name="recipient_id" value="{{ editing_recipient.id }}">
+            <div class="flex items-center justify-between rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+                <span>Editando destinatário <strong>{{ editing_recipient.name }}</strong></span>
+                <a href="/ui/residues" class="font-medium text-amber-800 hover:underline">Cancelar</a>
+            </div>
+            {% endif %}
+            <div class="grid gap-4 md:grid-cols-2">
+                <label class="text-sm text-slate-600" for="recipient-name">
+                    Nome
+                    <input id="recipient-name" name="name" type="text" required value="{{ editing_recipient.name if editing_recipient else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="recipient-facility">
+                    Tipo de instalação
+                    <input id="recipient-facility" name="facility_type" type="text" value="{{ editing_recipient.facility_type if editing_recipient else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="Estação de tratamento">
+                </label>
+                <label class="text-sm text-slate-600" for="recipient-license-number">
+                    Número da licença
+                    <input id="recipient-license-number" name="license_number" type="text" required value="{{ editing_recipient.license_number if editing_recipient else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="recipient-license-issue">
+                    Data de emissão
+                    <input id="recipient-license-issue" name="license_issue_date" type="date" value="{{ editing_recipient.license_issue_date if editing_recipient else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="recipient-license-expiry">
+                    Data de validade
+                    <input id="recipient-license-expiry" name="license_expiry_date" type="date" value="{{ editing_recipient.license_expiry_date if editing_recipient else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                </label>
+                <label class="text-sm text-slate-600" for="recipient-email">
+                    E-mail de contato
+                    <input id="recipient-email" name="contact_email" type="email" value="{{ editing_recipient.contact_email if editing_recipient else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="contato@empresa.com">
+                </label>
+                <label class="text-sm text-slate-600" for="recipient-phone">
+                    Telefone
+                    <input id="recipient-phone" name="contact_phone" type="text" value="{{ editing_recipient.contact_phone if editing_recipient else '' }}" class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500" placeholder="(11) 0000-0000">
+                </label>
+            </div>
+            <div class="flex justify-end gap-3">
+                {% if editing_recipient %}
+                <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Atualizar destinatário
+                </button>
+                {% else %}
+                <button type="submit" class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                    Adicionar destinatário
+                </button>
+                {% endif %}
+            </div>
+        </form>
+        <div class="overflow-x-auto bg-white border border-slate-200 shadow rounded-xl">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-slate-600 uppercase">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Nome</th>
+                        <th class="px-4 py-3 text-left">Instalação</th>
+                        <th class="px-4 py-3 text-left">Licença</th>
+                        <th class="px-4 py-3 text-left">Validade</th>
+                        <th class="px-4 py-3 text-left">Contato</th>
+                        <th class="px-4 py-3 text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for recipient in recipients %}
+                    <tr class="hover:bg-emerald-50/50">
+                        <td class="px-4 py-3 font-medium">{{ recipient.name }}</td>
+                        <td class="px-4 py-3">{{ recipient.facility_type or '-' }}</td>
+                        <td class="px-4 py-3">{{ recipient.license_number }}</td>
+                        <td class="px-4 py-3">{{ recipient.license_expiry_date or '-' }}</td>
+                        <td class="px-4 py-3">{{ recipient.contact_email or recipient.contact_phone or '-' }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex justify-end gap-2">
+                                <a href="/ui/residues?edit_recipient={{ recipient.id }}" class="inline-flex items-center rounded-lg border border-emerald-600 px-3 py-1 text-xs font-medium uppercase tracking-wide text-emerald-700 hover:bg-emerald-50">
+                                    Editar
+                                </a>
+                                <form action="/ui/residues/recipients/{{ recipient.id }}/delete" method="post" data-confirm-message="Remover este destinatário?">
+                                    <button type="submit" class="inline-flex items-center rounded-lg border border-rose-500 px-3 py-1 text-xs font-medium uppercase tracking-wide text-rose-600 hover:bg-rose-50" data-confirm-trigger>
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-6 text-center text-slate-500">Nenhum destinatário cadastrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const confirmForms = document.querySelectorAll("form[data-confirm-message]");
+    confirmForms.forEach((form) => {
+        const message = form.dataset.confirmMessage || "Confirmar ação?";
+        let promptElement = null;
+
+        const buildPrompt = () => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "mt-2 flex items-center gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700";
+            wrapper.innerHTML = `
+                <span class="flex-1">${message}</span>
+                <button type="button" data-confirm-accept class="rounded bg-rose-600 px-3 py-1 text-xs font-semibold text-white hover:bg-rose-700">Confirmar</button>
+                <button type="button" data-confirm-cancel class="rounded border border-rose-400 px-3 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-100">Cancelar</button>
+            `;
+            return wrapper;
+        };
+
+        form.addEventListener("submit", (event) => {
+            if (form.dataset.confirming === "true") {
+                form.dataset.confirming = "false";
+                if (promptElement) {
+                    promptElement.remove();
+                    promptElement = null;
+                }
+                return;
+            }
+
+            event.preventDefault();
+
+            if (!promptElement) {
+                promptElement = buildPrompt();
+                form.appendChild(promptElement);
+                const acceptButton = promptElement.querySelector("[data-confirm-accept]");
+                const cancelButton = promptElement.querySelector("[data-confirm-cancel]");
+
+                if (acceptButton) {
+                    acceptButton.addEventListener("click", () => {
+                        form.dataset.confirming = "true";
+                        form.requestSubmit();
+                    });
+                }
+
+                if (cancelButton) {
+                    cancelButton.addEventListener("click", () => {
+                        form.dataset.confirming = "false";
+                        if (promptElement) {
+                            promptElement.remove();
+                            promptElement = null;
+                        }
+                    });
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Controle de Licenças{% endblock %}
+
+{% block content %}
+<section class="grid gap-6 md:grid-cols-3">
+    <article class="bg-white shadow rounded-xl p-6 border border-slate-200">
+        <h2 class="text-sm uppercase text-slate-500">Licenças</h2>
+        <p class="text-3xl font-semibold mt-2">{{ metrics.licenses_total }}</p>
+        <p class="text-sm text-slate-500 mt-1">Total cadastradas</p>
+    </article>
+    <article class="bg-white shadow rounded-xl p-6 border border-slate-200">
+        <h2 class="text-sm uppercase text-slate-500">Licenças vencidas/hoje</h2>
+        <p class="text-3xl font-semibold mt-2 text-amber-600">{{ metrics.licenses_expiring }}</p>
+        <p class="text-sm text-slate-500 mt-1">Vencidas ou vencendo hoje</p>
+    </article>
+    <article class="bg-white shadow rounded-xl p-6 border border-slate-200">
+        <h2 class="text-sm uppercase text-slate-500">AVCB</h2>
+        <p class="text-3xl font-semibold mt-2">{{ metrics.avcb_total }}</p>
+        <p class="text-sm text-slate-500 mt-1">Alvarás ativos</p>
+    </article>
+    <article class="bg-white shadow rounded-xl p-6 border border-slate-200">
+        <h2 class="text-sm uppercase text-slate-500">AVCB vencidos/hoje</h2>
+        <p class="text-3xl font-semibold mt-2 text-amber-600">{{ metrics.avcb_expiring }}</p>
+        <p class="text-sm text-slate-500 mt-1">Vencidos ou vencendo</p>
+    </article>
+    <article class="bg-white shadow rounded-xl p-6 border border-slate-200">
+        <h2 class="text-sm uppercase text-slate-500">Códigos de resíduos</h2>
+        <p class="text-3xl font-semibold mt-2">{{ metrics.waste_codes_total }}</p>
+    </article>
+    <article class="bg-white shadow rounded-xl p-6 border border-slate-200">
+        <h2 class="text-sm uppercase text-slate-500">Transportadores</h2>
+        <p class="text-3xl font-semibold mt-2">{{ metrics.transporters_total }}</p>
+    </article>
+    <article class="bg-white shadow rounded-xl p-6 border border-slate-200">
+        <h2 class="text-sm uppercase text-slate-500">Destinatários</h2>
+        <p class="text-3xl font-semibold mt-2">{{ metrics.recipients_total }}</p>
+    </article>
+</section>
+{% endblock %}

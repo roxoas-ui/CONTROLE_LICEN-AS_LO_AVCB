@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Controle de Licenças{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.4/dist/tailwind.min.css">
+</head>
+<body class="bg-slate-100 text-slate-900">
+    <header class="bg-emerald-700 text-white">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-semibold">Controle de Licenças Ambientais</h1>
+            <nav class="flex gap-4 text-sm">
+                <a href="/ui/dashboard" class="hover:text-emerald-200">Dashboard</a>
+                <a href="/ui/licenses" class="hover:text-emerald-200">Licenças</a>
+                <a href="/ui/avcbs" class="hover:text-emerald-200">AVCB</a>
+                <a href="/ui/residues" class="hover:text-emerald-200">Resíduos</a>
+                <a href="/docs" class="hover:text-emerald-200">Swagger</a>
+            </nav>
+        </div>
+    </header>
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="border-t border-slate-200 py-6 mt-8">
+        <div class="max-w-6xl mx-auto px-6 text-sm text-slate-500">
+            CRM de Licenças Ambientais &copy; 2025
+        </div>
+    </footer>
+</body>
+</html>
