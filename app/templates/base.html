@@ -5,17 +5,173 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Controle de Licenças{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.4/dist/tailwind.min.css">
+    <style>
+        :root {
+            --color-olive: #6B8E23;
+            --color-grey21: #363636;
+            --color-grey31: #4F4F4F;
+            --color-gray: #808080;
+            --color-dimgray: #696969;
+        }
+
+        body {
+            background-color: var(--color-grey21);
+            color: #f5f5f5;
+        }
+
+        header {
+            background-color: var(--color-olive);
+        }
+
+        main {
+            color: inherit;
+        }
+
+        .nav-link {
+            color: #f6f6f6;
+            transition: color 120ms ease;
+        }
+
+        .nav-link:hover {
+            color: var(--color-gray);
+        }
+
+        .surface {
+            background-color: var(--color-grey31);
+            border: 1px solid var(--color-dimgray);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .brand-logo {
+            width: 60px;
+            height: auto;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+        }
+
+        .muted {
+            color: var(--color-gray);
+        }
+
+        input,
+        select,
+        textarea {
+            background-color: var(--color-grey31);
+            border: 1px solid var(--color-dimgray);
+            color: #f5f5f5;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--color-gray);
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--color-olive);
+            outline: none;
+            box-shadow: 0 0 0 1px var(--color-olive);
+        }
+
+        table {
+            color: inherit;
+        }
+
+        thead {
+            background-color: var(--color-grey31);
+            color: #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(107, 142, 35, 0.15);
+        }
+
+        .btn-primary {
+            background-color: var(--color-olive);
+            color: #fefefe;
+        }
+
+        .btn-primary:hover {
+            background-color: #5c7d1f;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--color-olive);
+            color: var(--color-olive);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(107, 142, 35, 0.12);
+        }
+
+        .badge-muted {
+            background-color: rgba(128, 128, 128, 0.18);
+            color: var(--color-gray);
+        }
+
+        .border-muted {
+            border-color: var(--color-dimgray);
+        }
+
+        .bg-emerald-600,
+        .bg-emerald-700,
+        .hover\:bg-emerald-700:hover,
+        .focus\:ring-emerald-500 {
+            background-color: var(--color-olive) !important;
+        }
+
+        .border-emerald-600,
+        .border-emerald-500,
+        .text-emerald-700,
+        .hover\:text-emerald-200:hover {
+            color: var(--color-olive) !important;
+            border-color: var(--color-olive) !important;
+        }
+
+        .bg-slate-100,
+        .bg-white,
+        .bg-slate-50 {
+            background-color: var(--color-grey31) !important;
+            color: inherit;
+        }
+
+        .text-slate-900,
+        .text-slate-800 {
+            color: #f5f5f5 !important;
+        }
+
+        .text-slate-600,
+        .text-slate-500 {
+            color: var(--color-gray) !important;
+        }
+
+        .border-slate-200,
+        .border-slate-300 {
+            border-color: var(--color-dimgray) !important;
+        }
+
+        footer {
+            background-color: var(--color-grey31);
+            color: var(--color-gray);
+        }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-900">
-    <header class="bg-emerald-700 text-white">
-        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-            <h1 class="text-2xl font-semibold">Controle de Licenças Ambientais</h1>
+<body>
+    <header class="text-white">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="flex items-center gap-3">
+                <img src="/static/img/logo.png" alt="Logotipo Ekozen" class="brand-logo">
+                <div>
+                    <h1 class="text-2xl font-semibold">Controle de Licenças Ambientais</h1>
+                    <p class="text-sm muted">EKOZEN · Engenharia e Consultoria em SSMA</p>
+                </div>
+            </div>
             <nav class="flex gap-4 text-sm">
-                <a href="/ui/dashboard" class="hover:text-emerald-200">Dashboard</a>
-                <a href="/ui/licenses" class="hover:text-emerald-200">Licenças</a>
-                <a href="/ui/avcbs" class="hover:text-emerald-200">AVCB</a>
-                <a href="/ui/residues" class="hover:text-emerald-200">Resíduos</a>
-                <a href="/docs" class="hover:text-emerald-200">Swagger</a>
+                <a href="/ui/dashboard" class="nav-link">Dashboard</a>
+                <a href="/ui/licenses" class="nav-link">Licenças</a>
+                <a href="/ui/avcbs" class="nav-link">AVCB</a>
+                <a href="/ui/residues" class="nav-link">Resíduos</a>
+                <a href="/docs" class="nav-link">Swagger</a>
             </nav>
         </div>
     </header>
