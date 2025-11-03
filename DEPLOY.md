@@ -27,8 +27,13 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 4. Migrar banco de dados
-Enquanto as migracoes Alembic nao estiverem disponiveis, crie as tabelas manualmente com `app/database.py` ou scripts SQL fornecidos pelo time. Registre a pendencia para acompanhamento.
+## 4. Preparar banco de dados
+Use o script utilitario para criar as tabelas e registrar o usuario administrador:
+```bash
+python scripts/bootstrap.py init-db
+python scripts/bootstrap.py create-superuser --email admin@example.com
+```
+O comando 1 garante que todas as tabelas existam. O comando 2 pergunta o nome completo e a senha (ou aceite via argumentos) e cria o superusuario acrescentando `is_superuser=True`. Execute novamente se precisar criar novos administradores.
 
 ## 5. Testes
 Execute os testes automatizados antes do deploy:

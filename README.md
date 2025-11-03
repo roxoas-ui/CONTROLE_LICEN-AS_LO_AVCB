@@ -36,6 +36,17 @@ uvicorn app.main:app --reload
 
 A API ficará disponível em `http://localhost:8000` e a documentação interativa em `http://localhost:8000/docs`.
 
+## Inicialização do banco e superusuário
+
+Após configurar o `.env`, crie as tabelas e um usuário administrador com o script utilitário:
+
+```powershell
+python scripts/bootstrap.py init-db
+python scripts/bootstrap.py create-superuser --email admin@example.com
+```
+
+Se omitir senha ou nome completo, o script solicitará interativamente (com confirmação da senha). Execute novamente sempre que precisar registrar novos administradores.
+
 ## Estrutura principal
 
 - `app/main.py`: inicialização FastAPI e roteadores.
