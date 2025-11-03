@@ -3,37 +3,227 @@
 {% block title %}Licenças Ambientais{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-semibold mb-4">Licenças Ambientais</h2>
-<div class="overflow-x-auto bg-white border border-slate-200 shadow rounded-xl">
-    <table class="min-w-full divide-y divide-slate-200 text-sm">
-        <thead class="bg-slate-50 text-slate-600 uppercase">
-            <tr>
-                <th class="px-4 py-3 text-left">Nome</th>
-                <th class="px-4 py-3 text-left">Órgão emissor</th>
-                <th class="px-4 py-3 text-left">Validade</th>
-                <th class="px-4 py-3 text-left">Status</th>
-                <th class="px-4 py-3 text-left">Condicionantes</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-            {% for license in licenses %}
-            <tr class="hover:bg-emerald-50/50">
-                <td class="px-4 py-3 font-medium">{{ license.name }}</td>
-                <td class="px-4 py-3">{{ license.issuing_agency }}</td>
-                <td class="px-4 py-3">{{ license.expiry_date }}</td>
-                <td class="px-4 py-3">
-                    <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs uppercase tracking-wide {{ 'border-emerald-400 text-emerald-600' if license.status.value == 'active' else 'border-amber-400 text-amber-600' }}">
-                        {{ license.status.value }}
-                    </span>
-                </td>
-                <td class="px-4 py-3">{{ license.conditions|length }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" class="px-4 py-6 text-center text-slate-500">Nenhuma licença cadastrada.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="space-y-8">
+    <section class="grid gap-4 md:grid-cols-4">
+        <article class="surface rounded-xl p-4">
+            <p class="text-xs uppercase text-slate-500">Total</p>
+            <p class="mt-2 text-2xl font-semibold">{{ license_metrics.total }}</p>
+        </article>
+        <article class="surface rounded-xl p-4">
+            <p class="text-xs uppercase text-slate-500">Ativas</p>
+            <p class="mt-2 text-2xl font-semibold">{{ license_metrics.active }}</p>
+        </article>
+        <article class="surface rounded-xl p-4">
+            <p class="text-xs uppercase text-slate-500">Expiradas</p>
+            <p class="mt-2 text-2xl font-semibold text-amber-400">{{ license_metrics.expired }}</p>
+        </article>
+        <article class="surface rounded-xl p-4">
+            <p class="text-xs uppercase text-slate-500">Vencendo (30 dias)</p>
+            <p class="mt-2 text-2xl font-semibold">{{ license_metrics.due_30 }}</p>
+        </article>
+    </section>
+
+    <section class="surface rounded-2xl border border-muted">
+        <div class="border-b border-muted px-6 pt-6">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h2 class="text-xl font-semibold">Gestão de Licenças</h2>
+                    <p class="text-sm text-slate-500">{{ licenses_count }} registro{{ 's' if licenses_count != 1 else '' }} carregado{{ 's' if licenses_count != 1 else '' }}</p>
+                </div>
+                <button type="button" data-open-tab="form" class="btn-primary inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium shadow">
+                    Nova licença
+                </button>
+            </div>
+            <div class="mt-6 flex gap-2">
+                <button type="button" data-tab-target="list" class="tab-trigger rounded-t-lg px-4 py-2 text-sm font-medium">
+                    Painel
+                </button>
+                <button type="button" data-tab-target="form" class="tab-trigger rounded-t-lg px-4 py-2 text-sm font-medium">
+                    Cadastro
+                </button>
+            </div>
+        </div>
+        <div class="px-6 pb-6" data-tabs data-default-tab="{{ active_tab }}">
+            {% if message %}
+            <div class="mt-6 rounded-lg border border-emerald-500/70 bg-emerald-600/10 px-4 py-3 text-sm text-emerald-200">
+                {{ message }}
+            </div>
+            {% elif error %}
+            <div class="mt-6 rounded-lg border border-rose-500/70 bg-rose-600/10 px-4 py-3 text-sm text-rose-200">
+                {{ error }}
+            </div>
+            {% endif %}
+            <div class="mt-6 space-y-10">
+                <div data-tab-panel="list">
+                    <form method="get" action="/ui/licenses" class="mb-6 grid gap-4 rounded-xl border border-muted bg-transparent p-4 md:grid-cols-4">
+                        <input type="hidden" name="tab" value="list">
+                        <label class="text-sm text-slate-400">
+                            Status
+                            <select name="status" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">
+                                <option value="">Todos</option>
+                                {% for value, label in license_status_options %}
+                                <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="text-sm text-slate-400">
+                            Vencimento em até
+                            <select name="due_within" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">
+                                <option value="">Sem filtro</option>
+                                {% for option in due_within_options %}
+                                <option value="{{ option }}" {% if selected_due_within == option %}selected{% endif %}>{{ option }} dias</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <div class="flex items-end gap-3 md:col-span-2">
+                            <button type="submit" class="btn-primary inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium shadow">
+                                Aplicar filtros
+                            </button>
+                            <a href="/ui/licenses" class="btn-outline inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium">
+                                Limpar
+                            </a>
+                        </div>
+                    </form>
+                    <div class="overflow-x-auto rounded-xl border border-muted">
+                        <table class="min-w-full divide-y divide-slate-700 text-sm">
+                            <thead class="bg-slate-900/40 text-slate-300 uppercase">
+                                <tr>
+                                    <th class="px-4 py-3 text-left">Licença</th>
+                                    <th class="px-4 py-3 text-left">Órgão emissor</th>
+                                    <th class="px-4 py-3 text-left">Emissão</th>
+                                    <th class="px-4 py-3 text-left">Validade</th>
+                                    <th class="px-4 py-3 text-left">Status</th>
+                                    <th class="px-4 py-3 text-left">Notas</th>
+                                    <th class="px-4 py-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800">
+                                {% for license in licenses %}
+                                <tr class="hover:bg-emerald-600/10">
+                                    <td class="px-4 py-3 font-medium">{{ license.name }}</td>
+                                    <td class="px-4 py-3">{{ license.issuing_agency }}</td>
+                                    <td class="px-4 py-3">{{ license.issue_date or '-' }}</td>
+                                    <td class="px-4 py-3">{{ license.expiry_date }}</td>
+                                    <td class="px-4 py-3">
+                                        <span class="inline-flex items-center rounded-full border border-emerald-500/40 px-2 py-0.5 text-xs uppercase tracking-wide text-emerald-200">
+                                            {{ license.status.name.replace('_', ' ').title() }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-slate-400">{{ license.notes or '-' }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex justify-end gap-2">
+                                            <a href="{{ request.url_for('list_licenses') }}?edit_license={{ license.id }}&tab=form" class="btn-outline inline-flex items-center rounded-lg px-3 py-1 text-xs font-semibold uppercase tracking-wide">
+                                                Editar
+                                            </a>
+                                            <form action="/ui/licenses/{{ license.id }}/delete" method="post" data-confirm="Remover esta licença?">
+                                                <button type="submit" class="inline-flex items-center rounded-lg border border-rose-500 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-rose-300">
+                                                    Excluir
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="px-4 py-6 text-center text-slate-500">Nenhuma licença cadastrada.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="hidden" data-tab-panel="form">
+                    <form action="/ui/licenses" method="post" class="grid gap-4">
+                        {% if edit_license %}
+                        <input type="hidden" name="license_id" value="{{ edit_license.id }}">
+                        <div class="flex items-center justify-between rounded-lg border border-amber-500/70 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+                            <span>Editando <strong>{{ edit_license.name }}</strong></span>
+                            <a href="{{ request.url_for('list_licenses') }}?tab=form" class="hover:underline">Cancelar edição</a>
+                        </div>
+                        {% endif %}
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <label class="text-sm text-slate-400">
+                                Nome da licença
+                                <input name="name" type="text" required value="{{ edit_license.name if edit_license else '' }}" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">
+                            </label>
+                            <label class="text-sm text-slate-400">
+                                Órgão emissor
+                                <input name="issuing_agency" type="text" required value="{{ edit_license.issuing_agency if edit_license else '' }}" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">
+                            </label>
+                            <label class="text-sm text-slate-400">
+                                Data de emissão
+                                <input name="issue_date" type="date" value="{{ edit_license.issue_date if edit_license else '' }}" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">
+                            </label>
+                            <label class="text-sm text-slate-400">
+                                Data de validade
+                                <input name="expiry_date" type="date" required value="{{ edit_license.expiry_date if edit_license else '' }}" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">
+                            </label>
+                            <label class="text-sm text-slate-400">
+                                Status
+                                {% set selected_form_status = edit_license.status.value if edit_license else default_license_status %}
+                                <select name="status" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">
+                                    {% for value, label in license_status_options %}
+                                    <option value="{{ value }}" {% if selected_form_status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </label>
+                            <label class="text-sm text-slate-400 md:col-span-2">
+                                Observações
+                                <textarea name="notes" rows="3" class="mt-1 w-full rounded-lg border border-muted bg-transparent px-3 py-2 text-sm">{{ edit_license.notes if edit_license else '' }}</textarea>
+                            </label>
+                        </div>
+                        <div class="flex justify-end gap-3 pt-2">
+                            <a href="{{ request.url_for('list_licenses') }}" class="btn-outline inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium">
+                                Voltar para lista
+                            </a>
+                            <button type="submit" class="btn-primary inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium shadow">
+                                {{ 'Atualizar licença' if edit_license else 'Registrar licença' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('[data-tabs]').forEach((container) => {
+        const defaultTab = container.dataset.defaultTab || 'list';
+        const triggers = container.closest('section').querySelectorAll('[data-tab-target]');
+        const quickActions = container.closest('section').querySelectorAll('[data-open-tab]');
+        const panels = container.querySelectorAll('[data-tab-panel]');
+
+        const setActive = (tab) => {
+            panels.forEach((panel) => {
+                panel.classList.toggle('hidden', panel.dataset.tabPanel !== tab);
+            });
+            triggers.forEach((trigger) => {
+                const isActive = trigger.dataset.tabTarget === tab;
+                trigger.classList.toggle('btn-primary', isActive);
+                trigger.classList.toggle('text-slate-400', !isActive);
+            });
+        };
+
+        triggers.forEach((trigger) => {
+            trigger.addEventListener('click', () => setActive(trigger.dataset.tabTarget));
+        });
+        quickActions.forEach((button) => {
+            button.addEventListener('click', () => setActive(button.dataset.openTab));
+        });
+
+        setActive(defaultTab);
+    });
+
+    document.querySelectorAll('form[data-confirm]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            const message = form.dataset.confirm || 'Confirmar ação?';
+            if (!confirm(message)) {
+                event.preventDefault();
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
