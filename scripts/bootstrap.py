@@ -8,9 +8,16 @@ Uso básico:
 from __future__ import annotations
 
 import argparse
+import sys
 from getpass import getpass
+from pathlib import Path
 
 from sqlalchemy.exc import OperationalError
+
+# Garante importação dos módulos da pasta raiz mesmo executando via python scripts/bootstrap.py
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 from app.crud.user import user_crud
 from app.database import Base, SessionLocal, engine
